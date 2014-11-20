@@ -7,6 +7,8 @@ package: package_list build_info
 
 stage:
 	mkdir -p staging/lib/fifo-tools
+	mkdir -p staging/sbin
+	cp ../py/fifo-tool staging/sbin
 	cp -r ../out/fifo staging/lib/fifo-tools/
 
 package_list: stage
