@@ -93,6 +93,6 @@ main(int argc, char *argv[])
       fprintf(stderr, "error: %s\n", (door_args.rbuf + 1));
     }
     munmap(door_args.rbuf, door_args.rsize);
-    return (success);
+    return (! success);
   }
 }

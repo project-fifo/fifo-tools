@@ -11,9 +11,14 @@ import json
 snap_fmt = {
     'uuid':
     {'title': 'UUID', 'len': 36, 'fmt': '%36s', 'get': lambda e: d(e, ['uuid'])},
-    'name':
-    {'title': 'Name', 'len': 10, 'fmt': '%-10s', 'get': lambda e: d(e, ['name'])},
- }
+    'timestamp':
+    {'title': 'Timestamp', 'len': 20, 'fmt': '%-20s',
+     'get': lambda e: datetime.fromtimestamp(d(e, ['timestamp'])/1000000).isoformat()},
+    'size':
+    {'title': 'Size', 'len': 5, 'fmt': '%5d', 'get': lambda e: d(e, ['size'])},
+    'comment':
+    {'title': 'Comment', 'len': 30, 'fmt': '%-30s', 'get': lambda e: d(e, ['comment'])},
+}
 
 # We need to add a own action for lists as arguments
 class ListAction(argparse.Action):
@@ -63,12 +68,22 @@ def header(args):
             r.append("-" * args.fmt_def[k]['len'])
         print(hfmt % tuple(r))
 
+def list_to_array(r, k):
+    l = []
+    for i in r:
+        e = r[i]
+        e[k] = i
+        l.append(e)
+    return l
+
 # Shows the data when list was selected.
 def show_list(args):
-    r = subprocess.call([UTIL, json.dumps(args.payload)])
-    print r
-    exit(0)
-    l = args.endpoint.list()
+    r = subprocess.check_output([UTIL, json.dumps(args.payload)])
+    r = json.loads(r)
+    if type(r) == type(dict()):
+        l = list_to_array(r, 'uuid')
+    else: 
+        l = r
     if not l and l != []:
         print("error!")
         exit(1)
@@ -106,7 +121,7 @@ subparsers = parser.add_subparsers(help='sub commands')
 p_snaps = subparsers.add_parser('snapshots', help='Snapshot related commands')
 sp_snaps = p_snaps.add_subparsers(help='snapshot commands')
 p_snaps_list = sp_snaps.add_parser('list', help='lists snapshots')
-p_snaps_list.add_argument('--fmt', action=ListAction, default=['uuid', 'name'])
+p_snaps_list.add_argument('--fmt', action=ListAction, default=['uuid', 'comment'])
 p_snaps_list.add_argument('-H', action='store_false')
 p_snaps_list.add_argument('-p', action='store_true')
 p_snaps_list.set_defaults(func=show_list, fmt_def=snap_fmt, payload={'action': 'snapshot-list'})
