@@ -1,0 +1,116 @@
+#!/usr/bin/env python
+## -*- python -*-
+# vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
+
+import sys
+import argparse
+import subprocess
+from pprint import pprint
+import json
+
+snap_fmt = {
+    'uuid':
+    {'title': 'UUID', 'len': 36, 'fmt': '%36s', 'get': lambda e: d(e, ['uuid'])},
+    'name':
+    {'title': 'Name', 'len': 10, 'fmt': '%-10s', 'get': lambda e: d(e, ['name'])},
+ }
+
+# We need to add a own action for lists as arguments
+class ListAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(namespace, self.dest, values.split(','))
+
+# Gets a value from a nested hash map or returns a given default if the value
+# is not present
+def d(o, p, deflt="-"):
+    if p == []:
+        return o
+    else:
+        k = p[0]
+        if k in o:
+            return d(o[k], p[1:], deflt)
+        else:
+            return deflt
+
+# Helper function to generate a formatstring out of the format definition and the selected fields
+def mk_fmt_str(args):
+    s = ""
+    for k in args.fmt:
+        s = s + args.fmt_def[k]['fmt'] + " "
+    return s
+
+# Helper function to generate the format values for one of the lines.
+def mk_fmt_line(args, e):
+    r = []
+    for k in args.fmt:
+        r.append(args.fmt_def[k]['get'](e))
+    return r
+
+# Prints the header for a list opperation based on the selected format
+def header(args):
+    fmt = mk_fmt_str(args)
+    hfmt = fmt.replace('d', 's')
+    r = []
+    for k in args.fmt:
+        r.append(args.fmt_def[k]['title'])
+    if args.p:
+        print(":".join(r))
+    else:
+        print(hfmt % tuple(r))
+    r = []
+    if not args.p:
+        for k in args.fmt:
+            r.append("-" * args.fmt_def[k]['len'])
+        print(hfmt % tuple(r))
+
+# Shows the data when list was selected.
+def show_list(args):
+    r = subprocess.call([UTIL, json.dumps(args.payload)])
+    print r
+    exit(0)
+    l = args.endpoint.list()
+    if not l and l != []:
+        print("error!")
+        exit(1)
+    if args.H:
+        header(args)
+    fmt = mk_fmt_str(args)
+    for e in l:
+        if not e:
+            print("error!")
+            exit(1)
+        l = mk_fmt_line(args, e)
+        if args.p:
+            print(":".join(l))
+        else:
+            print(fmt%tuple(l))
+
+# Shows the data when get was selected, outputs it in JSON
+def show_get(args):
+    e = args.endpoint.get(args.uuid)
+    if not e:
+        print("error!")
+        exit(1)
+    if 'map_fn' in args:
+        e = args.map_fn(e)
+    print(json.dumps(e, sort_keys=True, indent=2, separators=(',', ': ')))
+
+
+UTIL = "/opt/local/lib/fifo-tools/fifo"
+parser = argparse.ArgumentParser(description='FiFo zone tools.')
+
+parser.add_argument("--json", "-j", action='store_true', default=False, help="Return results as json")
+parser.add_argument('--version', '-V', action='version', version='%(prog)s {{VERSION}}')
+subparsers = parser.add_subparsers(help='sub commands')
+
+p_snaps = subparsers.add_parser('snapshots', help='Snapshot related commands')
+sp_snaps = p_snaps.add_subparsers(help='snapshot commands')
+p_snaps_list = sp_snaps.add_parser('list', help='lists snapshots')
+p_snaps_list.add_argument('--fmt', action=ListAction, default=['uuid', 'name'])
+p_snaps_list.add_argument('-H', action='store_false')
+p_snaps_list.add_argument('-p', action='store_true')
+p_snaps_list.set_defaults(func=show_list, fmt_def=snap_fmt, payload={'action': 'snapshot-list'})
+
+args = parser.parse_args(sys.argv[1:])
+
+args.func(args)
