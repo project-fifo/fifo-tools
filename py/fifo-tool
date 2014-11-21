@@ -214,6 +214,6 @@ add_json_parser('stack', subparsers)
 
 args = parser.parse_args(sys.argv[1:])
 
-debug = args.debug
+debug = args.verbose
 
 args.func(args)
