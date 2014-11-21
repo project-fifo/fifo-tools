@@ -8,6 +8,8 @@ import subprocess
 from pprint import pprint
 import json
 
+debug = False
+
 snap_fmt = {
     'uuid':
     {'title': 'UUID', 'len': 36, 'fmt': '%36s', 'get': lambda e: d(e, ['uuid'])},
@@ -95,7 +97,13 @@ def list_to_array(r, k):
     return l
 
 def invoke(payload):
-    return json.loads(subprocess.check_output([UTIL, json.dumps(payload)]))
+    j = json.dumps(payload)
+    if debug:
+        print '< ', j
+    res = subprocess.check_output([UTIL, j])
+    if debug:
+        print '> ', res
+    return json.loads(res)
 
 # Shows the data when list was selected.
 def show_list(args):
@@ -152,7 +160,7 @@ def json_set(args):
     payload = args.payload
     payload['data'] = value
     res = invoke(args.payload)
-    print(res)
+    print(json.dumps(res, sort_keys=True, indent=2, separators=(',', ': ')))
     exit(0)
 
 def add_json_parser(parent, subparsers):
@@ -178,6 +186,7 @@ parser = argparse.ArgumentParser(description='FiFo zone tools.')
 
 parser.add_argument("--json", "-j", action='store_true', default=False, help="Return results as json")
 parser.add_argument('--version', '-V', action='version', version='%(prog)s {{VERSION}}')
+parser.add_argument('--debug', '-d', action='store_true', default=False, help="Prints debug information")
 subparsers = parser.add_subparsers(help='sub commands')
 
 p_snaps = subparsers.add_parser('snapshots', help='Snapshot related commands')
@@ -206,5 +215,7 @@ add_json_parser('stack', subparsers)
 
 
 args = parser.parse_args(sys.argv[1:])
+
+debug = args.debug
 
 args.func(args)
