@@ -148,8 +148,6 @@ def json_get(args):
     print(json.dumps(res, sort_keys=True, indent=2, separators=(',', ': ')))
 
 def json_set(args):
-    keys = args.key.split('.')
-    k = keys.pop()
     value = args.value
     if args.integer:
         value = int(args.value)
@@ -158,7 +156,7 @@ def json_set(args):
     elif args.json:
         value = json.loads(args.value)
     payload = args.payload
-    payload['data'] = value
+    payload['data'] = {args.key: value}
     res = invoke(args.payload)
     print(json.dumps(res, sort_keys=True, indent=2, separators=(',', ': ')))
     exit(0)
