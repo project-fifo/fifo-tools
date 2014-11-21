@@ -20,6 +20,24 @@ snap_fmt = {
     {'title': 'Comment', 'len': 30, 'fmt': '%-30s', 'get': lambda e: d(e, ['comment'])},
 }
 
+backup_fmt = {
+    'uuid':
+    {'title': 'UUID', 'len': 36, 'fmt': '%36s', 'get': lambda e: d(e, ['uuid'])},
+    'parent':
+    {'title': 'Parent', 'len': 36, 'fmt': '%36s', 'get': lambda e: d(e, ['parent'])},
+    'local':
+    {'title': 'Local', 'len': 5, 'fmt': '%5s', 'get': lambda e: 'Yes' if d(e, ['local']) else 'No'},
+    'size':
+    {'title': 'Size', 'len': 15, 'fmt': '%5d', 'get': lambda e: d(e, ['size'], 0)},
+    'state':
+    {'title': 'State', 'len': 10, 'fmt': '%10s', 'get': lambda e: d(e, ['state'])},
+    'timestamp':
+    {'title': 'Timestamp', 'len': 20, 'fmt': '%-20s',
+     'get': lambda e: datetime.fromtimestamp(d(e, ['timestamp'])/1000000).isoformat()},
+    'comment':
+    {'title': 'Comment', 'len': 30, 'fmt': '%-30s', 'get': lambda e: d(e, ['comment'])},
+}
+
 # We need to add a own action for lists as arguments
 class ListAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
@@ -76,13 +94,18 @@ def list_to_array(r, k):
         l.append(e)
     return l
 
+def invoke(payload):
+    return json.loads(subprocess.check_output([UTIL, json.dumps(payload)]))
+
 # Shows the data when list was selected.
 def show_list(args):
-    r = subprocess.check_output([UTIL, json.dumps(args.payload)])
-    r = json.loads(r)
+    r = invoke(args.payload)
+    if args.json:
+        print(json.dumps(services, sort_keys=True, indent=2, separators=(',', ': ')))
+        exit(0)
     if type(r) == type(dict()):
         l = list_to_array(r, 'uuid')
-    else: 
+    else:
         l = r
     if not l and l != []:
         print("error!")
@@ -100,15 +123,54 @@ def show_list(args):
         else:
             print(fmt%tuple(l))
 
-# Shows the data when get was selected, outputs it in JSON
-def show_get(args):
-    e = args.endpoint.get(args.uuid)
-    if not e:
-        print("error!")
-        exit(1)
-    if 'map_fn' in args:
-        e = args.map_fn(e)
-    print(json.dumps(e, sort_keys=True, indent=2, separators=(',', ': ')))
+def snapshot_create(args):
+    p = args.payload
+    p['comment'] = args.comment
+    res = invoke(args.payload)
+    if args.json:
+        print res
+        exit(0)
+    if res:
+        print 'Snapshot successfully created!'
+    else:
+        print 'Snapshot creation failed!'
+
+def json_get(args):
+    res = invoke(args.payload)
+    print(json.dumps(services, sort_keys=True, indent=2, separators=(',', ': ')))
+
+def json_set(args):
+    keys = args.key.split('.')
+    k = keys.pop()
+    value = args.value
+    if args.integer:
+        value = int(args.value)
+    elif args.float:
+        value = float(args.value)
+    elif args.json:
+        value = json.loads(args.value)
+    payload = args.payload
+    payload['data'] = value
+    res = invoke(args.payload)
+    print(res)
+    exit(0)
+
+def add_json_parser(parent, subparsers):
+    p_json = subparsers.add_parser(parent, help=parent +' commands')
+    sp_json = p_json.add_subparsers(help=parent + ' commands')
+
+    parser_json_get = sp_json.add_parser('get', help='get ' + parent)
+    parser_json_get.set_defaults(func=json_get, payload={'action': parent + '-get'})
+
+    parser_json_set = sp_json.add_parser('set', help='set ' + parent)
+    parser_json_set.set_defaults(func=json_set, payload={'action': parent + '-set'})
+    parser_json_set.add_argument('key', help='key of the metadata')
+    group = parser_json_set.add_mutually_exclusive_group()
+    group.add_argument('--integer', '-i', help='value is integer ', action='store_true')
+    group.add_argument('--float', '-f', help='value is float', action='store_true')
+    group.add_argument('--string', '-s', help='value is string', action='store_true')
+    group.add_argument('--json', '-j', help='value is json', action='store_true')
+    parser_json_set.add_argument('value', help='value to be set')
 
 
 UTIL = "/opt/local/lib/fifo-tools/fifo"
@@ -125,6 +187,23 @@ p_snaps_list.add_argument('--fmt', action=ListAction, default=['uuid', 'comment'
 p_snaps_list.add_argument('-H', action='store_false')
 p_snaps_list.add_argument('-p', action='store_true')
 p_snaps_list.set_defaults(func=show_list, fmt_def=snap_fmt, payload={'action': 'snapshot-list'})
+
+p_snap_create = sp_snaps.add_parser('create', help='gets snapshots')
+p_snap_create.add_argument('comment', help='Comment for the snapshot.')
+p_snap_create.set_defaults(func=snapshot_create, payload={'action': 'snapshot-create'})
+
+p_backups = subparsers.add_parser('backups', help='Backup related commands')
+sp_backups = p_backups.add_subparsers(help='backup commands')
+p_backups_list = sp_backups.add_parser('list', help='lists backup')
+p_backups_list.add_argument('--fmt', action=ListAction, default=['uuid', 'comment'])
+p_backups_list.add_argument('-H', action='store_false')
+p_backups_list.add_argument('-p', action='store_true')
+p_backups_list.set_defaults(func=show_list, fmt_def=backup_fmt, payload={'action': 'backupshot-list'})
+
+add_json_parser('metadata', subparsers)
+add_json_parser('cluster', subparsers)
+add_json_parser('stack', subparsers)
+
 
 args = parser.parse_args(sys.argv[1:])
 
