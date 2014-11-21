@@ -3,3 +3,6 @@ out/fifo: src/fifo.c
 
 package: out/fifo
 	make -C pkg package
+
+man:
+	nroff -man doc/fifo-tool.1 | less

@@ -1,0 +1,78 @@
+.TH fifo 1  "Nov 21, 2014" "version {{VERSION}}" "USER COMMANDS"
+
+.SH NAME
+fifo-tool \- Zone client for project-fifo run zones
+
+................................................................................
+.SH SYNOPSIS
+.B fifo-tool
+[\-h|\-\-help] [\-V|\-\-version] [\-v|\-\-verbose] [\-j|\-\-json] {snapshots,
+backups, metadata, cluster, stack}
+
+.SH OPTIONS
+.TP
+\-h|\-\-help
+display a short help text, can be used for all sub commands
+.TP
+\-j|\-\-json
+prints all output as json instead of formating it
+.TP
+\-V|\-\-version
+shows the current version
+.TP
+\-v|\-\-verbose
+Enables verbose debugging output
+
+.SH COMMANDS
+.TP
+snapshots list [\-p] [\-H] [\-\-fmt FMT]
+Lists all snapshots.
+
+.B FMT
+can be one or more (joined by ',') of: uuid, size, tiemstamp, comment
+.TP
+snapshots create <comment>
+Creates a new snapshot with the provided
+.B <comment>.
+.TP
+backups list [\-p] [\-H] [\-\-fmt FMT]
+Lists all backups for this vm.
+
+.B FMT
+can be one or more (joined by ',') of: uuid, parent, local, size, state,
+tiemstamp, comment
+.TP
+metadata get
+Shows the VM's metadata.
+.TP
+metadata set [\-i|\-\-integer] [\-f|\-\-float] [\-s|\-\-string] [\-s|\-\-json] key value
+Sets the metadata, the
+.B key
+can contain '.' to write deeper into a nested stricutre. By default the value is treated
+as a string but this can be overwritten by the type arguments.
+.TP
+cluster get
+Shows the cluster configuration.
+.TP
+cluster set [\-i|\-\-integer] [\-f|\-\-float] [\-s|\-\-string] [\-s|\-\-json] key value
+Sets the cluster configuration, the
+.B key
+can contain '.' to write deeper into a nested stricutre. By default the value is treated
+as a string but this can be overwritten by the type arguments.
+.TP
+stack get
+Shows the stack configuration.
+.TP
+stack set [\-i|\-\-integer] [\-f|\-\-float] [\-s|\-\-string] [\-s|\-\-json] key value
+Sets the stack configuration, the
+.B key
+can contain '.' to write deeper into a nested stricutre. By default the value is treated
+as a string but this can be overwritten by the type arguments.
+
+.SH EXIT STATUS
+.B fifo-tool
+returns zero on a successful execution and one when a error
+occurred printing some details of the error.
+
+.SH AUTHOR
+Heinz N. 'Licenser' Gies (heinz (at) licenser.net)
