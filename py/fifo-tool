@@ -101,7 +101,7 @@ def invoke(payload):
 def show_list(args):
     r = invoke(args.payload)
     if args.json:
-        print(json.dumps(services, sort_keys=True, indent=2, separators=(',', ': ')))
+        print(json.dumps(r, sort_keys=True, indent=2, separators=(',', ': ')))
         exit(0)
     if type(r) == type(dict()):
         l = list_to_array(r, 'uuid')
@@ -137,7 +137,7 @@ def snapshot_create(args):
 
 def json_get(args):
     res = invoke(args.payload)
-    print(json.dumps(services, sort_keys=True, indent=2, separators=(',', ': ')))
+    print(json.dumps(res, sort_keys=True, indent=2, separators=(',', ': ')))
 
 def json_set(args):
     keys = args.key.split('.')
