@@ -5,4 +5,4 @@ package: out/fifo
 	make -C pkg package
 
 man:
-	nroff -man doc/fifo-tool.1 | less
+	nroff -man doc/zfifo.1 | less
