@@ -1,4 +1,4 @@
-PROJECT = fifo-tools
+PROJECT = zfifo
 CATEGORIES = tools
 HOMEPAGE = https://project-fifo.net
 VERSION = 0.6.2
