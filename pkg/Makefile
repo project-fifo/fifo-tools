@@ -11,6 +11,7 @@ stage:
 	mkdir -p staging/man/man1
 	sed -e 's/{{VERSION}}/$(VERSION)/' ../py/zfifo > staging/sbin/zfifo
 	sed -e 's/{{VERSION}}/$(VERSION)/' ../doc/zfifo.1 > staging/man/man1/zfifo.1
+	chmod +x staging/sbin/zfifo
 	cp -r ../out/fifo staging/lib/fifo-tools/
 
 package_list: stage
