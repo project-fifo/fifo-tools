@@ -9,3 +9,6 @@ man:
 
 test:
 	true
+
+version_header:
+	true
