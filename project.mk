@@ -1,4 +1,3 @@
 PROJECT = zfifo
-CATEGORIES = tools
-HOMEPAGE = https://project-fifo.net
+PKG_CATEGORY = tools
 VERSION = 0.6.2
