@@ -7,8 +7,5 @@ package: out/fifo
 man:
 	nroff -man doc/zfifo.1 | less
 
-test:
-	true
-
-version_header:
+test deps version_header:
 	true
