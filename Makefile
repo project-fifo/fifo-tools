@@ -6,3 +6,6 @@ package: out/fifo
 
 man:
 	nroff -man doc/zfifo.1 | less
+
+test:
+	true
