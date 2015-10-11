@@ -143,6 +143,23 @@ def snapshot_create(args):
     else:
         print 'Snapshot creation failed!'
 
+def backup_create(args):
+    p = args.payload
+    p['comment'] = args.comment
+    p['delete'] = args.parent or False
+
+    if args.parent:
+        p['parent'] = args.parent
+
+    res = invoke(args.payload)
+    if args.json:
+        print res
+        exit(0)
+    if res:
+        print 'Snapshot successfully created!'
+    else:
+        print 'Snapshot creation failed!'
+
 def json_get(args):
     res = invoke(args.payload)
     print(json.dumps(res, sort_keys=True, indent=2, separators=(',', ': ')))
@@ -203,9 +220,17 @@ p_backups = subparsers.add_parser('backups', help='Backup related commands')
 sp_backups = p_backups.add_subparsers(help='backup commands')
 p_backups_list = sp_backups.add_parser('list', help='lists backup')
 p_backups_list.add_argument('--fmt', action=ListAction, default=['uuid', 'comment'])
-p_backups_list.add_argument('-H', action='store_false')
-p_backups_list.add_argument('-p', action='store_true')
+p_backups_list.add_argument('-H', action='store_false', help="omit header")
+p_backups_list.add_argument('-p', action='store_true',  help="parsable output")
 p_backups_list.set_defaults(func=show_list, fmt_def=backup_fmt, payload={'action': 'backupshot-list'})
+
+p_backup_create = sp_backups.add_parser('create', help='gets backupshots')
+p_backup_create.add_argument('--parent', '-p', help='parent for the snapshot')
+p_backup_create.add_argument('--delete', '-d', action='store_true',
+                             help='delete snapshot after upload, or parent if specified')
+p_backup_create.add_argument('comment', help='Comment for the backupshot.')
+p_backup_create.set_defaults(func=backup_create, payload={'action': 'backup-create'})
+
 
 add_json_parser('metadata', subparsers)
 add_json_parser('cluster', subparsers)
