@@ -131,6 +131,19 @@ def show_list(args):
         else:
             print(fmt%tuple(l))
 
+            # Shows the data when list was selected.
+def show_cluster_vms(args):
+    r = invoke(args.payload)
+    if args.json:
+        print(json.dumps(r, sort_keys=True, indent=2, separators=(',', ': ')))
+        exit(0)
+
+    if not r and r != []:
+        print("error!")
+        exit(1)
+    for e in r:
+        print(e)
+
 def snapshot_create(args):
     p = args.payload
     p['comment'] = args.comment
@@ -194,6 +207,7 @@ def add_json_parser(parent, subparsers):
     group.add_argument('--string', '-s', help='value is string', action='store_true')
     group.add_argument('--json', '-j', help='value is json', action='store_true')
     parser_json_set.add_argument('value', help='value to be set')
+    return sp_json
 
 
 UTIL = "/opt/local/lib/fifo-tools/fifo"
@@ -231,9 +245,11 @@ p_backup_create.add_argument('--delete', '-d', action='store_true',
 p_backup_create.add_argument('comment', help='Comment for the backupshot.')
 p_backup_create.set_defaults(func=backup_create, payload={'action': 'backup-create'})
 
-
 add_json_parser('metadata', subparsers)
-add_json_parser('cluster', subparsers)
+p_cluster = add_json_parser('cluster', subparsers)
+p_cluster_vms = p_cluster.add_parser('vms', help='lists vms in the cluster')
+p_cluster_vms.set_defaults(func=show_cluster_vms, payload={'action': 'cluster-vms'})
+
 add_json_parser('stack', subparsers)
 
 
