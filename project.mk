@@ -1,3 +1,3 @@
 PROJECT = zfifo
 PKG_CATEGORY = tools
-VERSION = 0.7.0
+VERSION = 0.7.1
