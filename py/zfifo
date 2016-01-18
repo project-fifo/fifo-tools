@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+b#!/usr/bin/env python
 ## -*- python -*-
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
 
@@ -131,7 +131,16 @@ def show_list(args):
         else:
             print(fmt%tuple(l))
 
-            # Shows the data when list was selected.
+
+def zfs_list(args):
+    r = invoke({'action' :'zfs-list'})
+    if r['reply']:
+        print(r['reply'])
+        exit(0)
+    else:
+        print(r['error'])
+        exit(1)
+
 def show_cluster_vms(args):
     r = invoke(args.payload)
     if args.json:
@@ -267,6 +276,11 @@ p_stack = add_json_parser('stack', subparsers)
 p_stack_vms = p_stack.add_parser('vms', help='lists vms in the stack')
 p_stack_vms.set_defaults(func=show_stack_vms, payload={'action': 'stack-vms'})
 
+
+p_zfs = subparsers.add_parser('zfs', help='zfs related commands')
+sp_zfs = p_zfs.add_subparsers(help='zfs commands')
+p_zfs_list = sp_zfs.add_parser('list', help='lists zfs zones')
+p_zfs_list.set_defaults(func=zfs_list)
 
 args = parser.parse_args(sys.argv[1:])
 
