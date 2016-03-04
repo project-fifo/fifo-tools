@@ -165,6 +165,42 @@ def show_stack_vms(args):
     for e in r:
         print(e)
 
+def stack_start(args):
+    p = args.payload
+    p['vm'] = args.uuid
+    r = invoke(p)
+    if r['reply']:
+        print(r['reply'])
+        exit(0)
+    else:
+        print(r['error'])
+        exit(1)
+
+def stack_power(args):
+    p = args.payload
+    if args.force:
+        p['state'] = 'force-' + p['state']
+    p['vm'] = args.uuid
+    r = invoke(p)
+    if r['reply']:
+        print(r['reply'])
+        exit(0)
+    else:
+        print(r['error'])
+        exit(1)
+
+def stack_execute(args):
+    p = args.payload
+    p['vm'] = args.uuid
+    p['command'] = [args.command] + args.args
+    r = invoke(p)
+    if r['output']:
+        print r['output']
+        exit(r['exit_code'])
+    else:
+        print(r['error'])
+        exit(1)
+
 def snapshot_create(args):
     p = args.payload
     p['comment'] = args.comment
@@ -276,6 +312,32 @@ p_stack = add_json_parser('stack', subparsers)
 p_stack_vms = p_stack.add_parser('vms', help='lists vms in the stack')
 p_stack_vms.set_defaults(func=show_stack_vms, payload={'action': 'stack-vms'})
 
+p_stack_start = p_stack.add_parser('start', help='starts a vm in a stack')
+p_stack_start.add_argument('uuid', help='uuid of the vm to start')
+p_stack_start.set_defaults(func=stack_start, payload={'action': 'stack-power',
+                                                      'state': 'start'})
+
+p_stack_reboot = p_stack.add_parser('reboot', help='reboots a vm in a stack')
+p_stack_reboot.add_argument('uuid', help='uuid of the vm to reboot')
+p_stack_reboot.add_argument('--force', '-f', action='store_true', default=False,
+                            help='force the action')
+p_stack_reboot.set_defaults(func=stack_power, payload={'action': 'stack-power',
+                                                      'state': 'reboot'})
+
+p_stack_stop = p_stack.add_parser('stop', help='stops a vm in a stack')
+p_stack_stop.add_argument('uuid', help='uuid of the vm to stop')
+p_stack_stop.add_argument('--force', '-f', action='store_true', default=False,
+                          help='force the action')
+p_stack_stop.set_defaults(func=stack_power, payload={'action': 'stack-power',
+                                                      'state': 'stop'})
+
+p_stack_run = p_stack.add_parser('run', help='runs a command on a vm in a stack')
+p_stack_run.add_argument('uuid', help='uuid of the vm to run')
+p_stack_run.add_argument('command', help='command to run')
+p_stack_run.add_argument('args', metavar='arg', nargs='*',
+                         help='arguments for the command, please make sure to' +
+                         ' escape characters as ";" or ">"')
+p_stack_run.set_defaults(func=stack_execute, payload={'action': 'stack-execute'})
 
 p_zfs = subparsers.add_parser('zfs', help='zfs related commands')
 sp_zfs = p_zfs.add_subparsers(help='zfs commands')
