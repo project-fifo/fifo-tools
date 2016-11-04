@@ -3,7 +3,7 @@ include ../../project.mk
 COMPONENT_INTERNAL=$(PROJECT)
 COMPONENT=$(COMPONENT_INTERNAL)
 TARGET_DIR=/opt/local
-DEPS="python27>=2.7.9"
+DEPS="python33"
 
 include pkg.mk
 
