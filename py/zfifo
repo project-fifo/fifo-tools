@@ -99,10 +99,10 @@ def list_to_array(r, k):
 def invoke(payload):
     j = json.dumps(payload)
     if debug:
-        print '< ', j
+        print('< ', j)
     res = subprocess.check_output([UTIL, j])
     if debug:
-        print '> ', res
+        print('> ', res)
     return json.loads(res)
 
 # Shows the data when list was selected.
@@ -195,7 +195,7 @@ def stack_execute(args):
     p['command'] = [args.command] + args.args
     r = invoke(p)
     if r['output']:
-        print r['output']
+        print(r['output'])
         exit(r['exit_code'])
     else:
         print(r['error'])
@@ -206,12 +206,12 @@ def snapshot_create(args):
     p['comment'] = args.comment
     res = invoke(args.payload)
     if args.json:
-        print res
+        print(res)
         exit(0)
     if res:
-        print 'Snapshot successfully created!'
+        print('Snapshot successfully created!')
     else:
-        print 'Snapshot creation failed!'
+        print('Snapshot creation failed!')
 
 def backup_create(args):
     p = args.payload
@@ -223,12 +223,12 @@ def backup_create(args):
 
     res = invoke(args.payload)
     if args.json:
-        print res
+        print(res)
         exit(0)
     if res:
-        print 'Snapshot successfully created!'
+        print('Snapshot successfully created!')
     else:
-        print 'Snapshot creation failed!'
+        print('Snapshot creation failed!')
 
 def json_get(args):
     res = invoke(args.payload)
