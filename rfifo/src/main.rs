@@ -7,6 +7,7 @@ extern crate prettytable;
 
 mod cli;
 mod cmd;
+mod fmt;
 
 fn main() {
     let matches = cli::build().get_matches();

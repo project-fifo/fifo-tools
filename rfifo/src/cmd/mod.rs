@@ -23,8 +23,10 @@ pub fn run<E: Encodable>(obj: E) -> Value {
     return run_str(str);
 }
 
+
 pub fn run_str(str: String) -> Value {
-    let output = Command::new("echo")
+    let executable = "/opt/local/lib/fifo-tools/fifo";
+    let output = Command::new(executable)
         .arg(str)
         .output()
         .expect("failed to execute process");
