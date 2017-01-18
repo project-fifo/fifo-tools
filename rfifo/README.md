@@ -15,6 +15,12 @@ Modules:
 ```
 main.rs.       - main file
 cmd            - generic command executor
+fmt            - Table formating library
 cli            - CLI commands
  `- snapshots  - snapshot related.subcommands
+```
+
+dummy zdoor provider for testing:
+```bash
+cp fifo-tool.sh /opt/local/lib/fifo-tools/fifo
 ```
