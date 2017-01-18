@@ -2,18 +2,17 @@ use clap::{App, Arg, SubCommand, ArgMatches};
 use cmd;
 
 pub fn build() -> App<'static, 'static> {
-    SubCommand::with_name("snapshots")
-        .about("Snapshot related commands")
+    SubCommand::with_name("backups")
+        .about("Backup related commands")
         .subcommand(SubCommand::with_name("list")
-                    .about("Lists all snapshots")
+                    .about("Lists all backups")
                     .arg(Arg::with_name("format")
                          .long("fmt")
                          .value_name("FMT")
                          .help("Fields to be shown")))
         .subcommand(SubCommand::with_name("create")
-                    .about("Creates a snapshot")
-                    .arg(Arg::with_name("comment")
-                         .value_name("COMMENT")
+                    .about("Creates a backup")
+                    .arg(Arg::with_name("COMMENT")
                          .required(true)
                          .index(1)))
 }
@@ -32,27 +31,27 @@ pub fn run(matches: &ArgMatches) {
                     create(&sub.matches)
                 },
                 other =>
-                    println!("Sub command '{}' not implemented for snapshots.", other)
+                    println!("Sub command '{}' not implemented for backups.", other)
             }
         }
     }
 }
 
 fn list(_app: &ArgMatches) {
-    let value = cmd::run_generic("snapshots-list".to_string());
+    let value = cmd::run_generic("backups-list".to_string());
     println!("deserialized = {:?}", value);
 }
 
 
 #[derive(RustcEncodable)]
-struct SnapshotCreateReq {
+struct BackupCreateReq {
     action: String,
     comment: String
 }
 fn create(matches: &ArgMatches) {
-    let comment = value_t!(matches, "comment", String).unwrap();
-    let req = SnapshotCreateReq{
-        action:  "snapshot-create".to_string(),
+    let comment = value_t!(matches, "COMMENT", String).unwrap();
+    let req = BackupCreateReq{
+        action:  "backup-create".to_string(),
         comment: comment
     };
     let res = cmd::run(req);

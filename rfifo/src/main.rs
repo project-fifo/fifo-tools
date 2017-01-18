@@ -1,15 +1,16 @@
 extern crate rustc_serialize;
-extern crate clap;
 extern crate serde_json;
-#[macro_use] extern crate prettytable;
+#[macro_use]
+extern crate clap;
+#[macro_use]
+extern crate prettytable;
 
 mod cli;
 mod cmd;
 
 fn main() {
-
     let matches = cli::build().get_matches();
-    println!("matches = {:?}", matches);
+//    println!("matches = {:?}", matches);
     match matches.subcommand {
         None =>
             println!("help"),

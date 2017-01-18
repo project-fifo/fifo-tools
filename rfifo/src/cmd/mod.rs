@@ -20,6 +20,10 @@ pub fn run_generic(action: String) -> Value {
 // from the outside
 pub fn run<E: Encodable>(obj: E) -> Value {
     let str = json::encode(&obj).unwrap();
+    return run_str(str);
+}
+
+pub fn run_str(str: String) -> Value {
     let output = Command::new("echo")
         .arg(str)
         .output()
