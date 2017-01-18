@@ -15,15 +15,20 @@ pub fn print(fields: &Vec<Field>, values: &Vec<Value>) {
     let mut table = Table::new();
     let mut hdr = Row::empty();
     for field in fields.iter() {
-        hdr.add_cell(Cell::new(field.title));
+        if field.default {
+            hdr.add_cell(Cell::new(field.title));
+        }
         //println!("field: {:?}", field.title)
     }
     table.add_row(hdr);
     for entry in values.iter() {
         let mut row = Row::empty();
         for field in fields.iter() {
-            let field = (field.get)(entry);
-            row.add_cell(Cell::new(&field));
+            if field.default {
+
+                let field = (field.get)(entry);
+                row.add_cell(Cell::new(&field));
+            }
         }
         table.add_row(row);
     }

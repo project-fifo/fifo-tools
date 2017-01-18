@@ -67,9 +67,7 @@ fn list(_app: &ArgMatches) {
                         .as_i64()
                         .unwrap()
                         .to_string()
-                }
-
-            })
+                }})
 
         },
         fmt::Field{
