@@ -20,7 +20,7 @@ pub fn build() -> App<'static, 'static> {
                          .index(1)))
 }
 
-pub fn run(matches: &ArgMatches) {
+pub fn run(matches: &ArgMatches, opts: &fmt::Opts) {
     match matches.subcommand {
         None =>
             println!("help"),
@@ -28,7 +28,7 @@ pub fn run(matches: &ArgMatches) {
             let name = sub.name.as_ref();
             match name {
                 "list" => {
-                    list(&sub.matches)
+                    list(&sub.matches, opts)
                 },
                 "create" => {
                     create(&sub.matches)
@@ -40,7 +40,7 @@ pub fn run(matches: &ArgMatches) {
     }
 }
 
-fn list(_app: &ArgMatches) {
+fn list(_app: &ArgMatches, opts: &fmt::Opts) {
     let fields =  vec![
         fmt::Field{
             title: "UUID",
@@ -84,7 +84,6 @@ fn list(_app: &ArgMatches) {
             short: "timestamp",
             default: true,
             get: Box::new(|x| { x.lookup("timestamp").unwrap().as_i64().unwrap().to_string() })
-
         },
         fmt::Field{
             title: "Size",
@@ -99,9 +98,7 @@ fn list(_app: &ArgMatches) {
                         .unwrap()
                         .to_string()
                 }
-
             })
-
         },
         fmt::Field{
             title: "State",
@@ -124,7 +121,8 @@ fn list(_app: &ArgMatches) {
         element.insert("uuid".to_string(), Value::String(uuid.to_string()));
         vec.push(Value::Object(element));
     }
-    fmt::print(&fields, &vec);
+    //let opts = fmt::Opts{json: true, fields: vec![]};
+    fmt::print(&fields, &vec, &opts);
 }
 
 

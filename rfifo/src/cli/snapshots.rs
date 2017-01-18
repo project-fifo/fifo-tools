@@ -20,7 +20,7 @@ pub fn build() -> App<'static, 'static> {
                          .index(1)))
 }
 
-pub fn run(matches: &ArgMatches) {
+pub fn run(matches: &ArgMatches, opts: &fmt::Opts) {
     match matches.subcommand {
         None =>
             println!("help"),
@@ -85,7 +85,8 @@ fn list(_app: &ArgMatches) {
         element.insert("uuid".to_string(), Value::String(uuid.to_string()));
         vec.push(Value::Object(element));
     }
-    fmt::print(&fields, &vec);
+    let opts = fmt::Opts{json: false, fields: vec![]};
+    fmt::print(&fields, &vec, &opts);
 }
 
 

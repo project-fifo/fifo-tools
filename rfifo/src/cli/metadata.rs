@@ -2,6 +2,7 @@ use clap::{App, Arg, ArgMatches, SubCommand};
 use cmd;
 use serde_json;
 use serde_json::Value;
+use fmt;
 
 pub fn build() -> App<'static, 'static> {
     SubCommand::with_name("metadata")
@@ -37,7 +38,7 @@ pub fn build() -> App<'static, 'static> {
         )
 }
 
-pub fn run(matches: &ArgMatches) {
+pub fn run(matches: &ArgMatches, opts: &fmt::Opts) {
     match matches.subcommand {
         None =>
             println!("help"),
