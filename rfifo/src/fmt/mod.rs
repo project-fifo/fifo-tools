@@ -16,7 +16,7 @@ pub fn print(fields: &Vec<Field>, values: &Vec<Value>) {
     let mut hdr = Row::empty();
     for field in fields.iter() {
         if field.default {
-            hdr.add_cell(Cell::new(field.title));
+            hdr.add_cell(Cell::new(field.title).style_spec("Fgc"));
         }
         //println!("field: {:?}", field.title)
     }
