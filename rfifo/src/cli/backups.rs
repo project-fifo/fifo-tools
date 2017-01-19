@@ -33,8 +33,10 @@ pub fn run(matches: &ArgMatches, opts: &fmt::Opts) {
                 "create" => {
                     create(&sub.matches)
                 },
-                other =>
-                    println!("Sub command '{}' not implemented for backups.", other)
+                other => {
+                    println!("Sub command '{}' not implemented for backups.", other);
+                    process::exit(1);
+                }
             }
         }
     }

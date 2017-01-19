@@ -33,8 +33,11 @@ pub fn run(matches: &ArgMatches, opts: &fmt::Opts) {
                 "create" => {
                     create(&sub.matches)
                 },
-                other =>
-                    println!("Sub command '{}' not implemented for snapshots.", other)
+                other => {
+                    println!("Sub command '{}' not implemented for snapshots.", other);
+                    process::exit(1);
+                }
+
             }
         }
     }

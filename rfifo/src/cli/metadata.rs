@@ -3,6 +3,7 @@ use cmd;
 use serde_json;
 use serde_json::Value;
 use fmt;
+use std::process;
 
 pub fn build() -> App<'static, 'static> {
     SubCommand::with_name("metadata")
@@ -51,8 +52,10 @@ pub fn run(matches: &ArgMatches, _opts: &fmt::Opts) {
                 "set" => {
                     set(&sub.matches)
                 },
-                other =>
-                    println!("Sub command '{}' not implemented for metadata.", other)
+                other => {
+                    println!("Sub command '{}' not implemented for metadata.", other);
+                    process::exit(1);
+                }
             }
         }
     }
@@ -60,7 +63,7 @@ pub fn run(matches: &ArgMatches, _opts: &fmt::Opts) {
 
 fn get(_app: &ArgMatches) {
     let value = cmd::run_generic("metadata-get".to_string());
-    println!("deserialized = {:?}", value);
+    print!("{}", serde_json::to_string(&value).unwrap());
 }
 
 fn set(matches: &ArgMatches) {

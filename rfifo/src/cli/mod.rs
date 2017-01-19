@@ -1,6 +1,7 @@
 pub mod snapshots;
 pub mod backups;
 pub mod metadata;
+pub mod cluster;
 
 use clap::{App, Arg, SubCommand};
 use fmt;
@@ -8,7 +9,7 @@ use fmt;
 pub fn build() -> App<'static, 'static> {
     App::new("fifo")
         .about("FiFo zone tools")
-//        .version(crate_version!())
+    //        .version(crate_version!())
         .arg(Arg::with_name("json")
              .short("j")
              .long("json")
@@ -16,6 +17,7 @@ pub fn build() -> App<'static, 'static> {
         .subcommand(snapshots::build())
         .subcommand(backups::build())
         .subcommand(metadata::build())
+        .subcommand(cluster::build())
 }
 
 pub fn run(cmd: &SubCommand, opts: &fmt::Opts) {
@@ -30,7 +32,13 @@ pub fn run(cmd: &SubCommand, opts: &fmt::Opts) {
         "metadata" => {
             metadata::run(&cmd.matches, opts)
         },
-        other =>
-            println!("Sub command '{}' not implemented.", other)
+        "cluster" => {
+            cluster::run(&cmd.matches, opts)
+        },
+        other => {
+            println!("Sub command '{}' not implemented.", other);
+            process::exit(1);
+        }
+
     }
 }

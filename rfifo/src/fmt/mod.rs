@@ -4,6 +4,7 @@ use prettytable::Table;
 use prettytable::row::Row;
 use prettytable::cell::Cell;
 use fmt;
+use std::process;
 
 pub struct Field<'a> {
     pub title: &'a str,
@@ -53,8 +54,10 @@ fn format_fields<'a>(fields: &'a Vec<Field<'a>>, opts: &fmt::Opts) -> Vec<&'a Fi
         let mut result: Vec<&Field> = vec![];
         for &n in opts.format.iter() {
             match fields.iter().position(|f| f.short == n) {
-                None =>
-                    println!("Error: field {} doesn't exist!", n),
+                None => {
+                    println!("Error: field {} doesn't exist!", n);
+                     process::exit(1)
+                }
                 pos =>
                     result.push(&fields[pos.unwrap()])
             }
