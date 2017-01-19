@@ -4,10 +4,13 @@ extern crate serde_json;
 extern crate clap;
 #[macro_use]
 extern crate prettytable;
+#[cfg(target_os = "solaris")]
+extern crate libc;
 
 mod cli;
 mod cmd;
 mod fmt;
+mod door;
 
 fn main() {
     let matches = cli::build().get_matches();
