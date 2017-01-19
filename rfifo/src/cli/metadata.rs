@@ -38,7 +38,7 @@ pub fn build() -> App<'static, 'static> {
         )
 }
 
-pub fn run(matches: &ArgMatches, opts: &fmt::Opts) {
+pub fn run(matches: &ArgMatches, _opts: &fmt::Opts) {
     match matches.subcommand {
         None =>
             println!("help"),

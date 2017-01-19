@@ -18,13 +18,14 @@ pub struct Opts<'a> {
 }
 
 pub fn print(fields: &Vec<Field>, values: &Vec<Value>, opts: &fmt::Opts) {
+    let display_fields = format_fields(fields, opts);
     if opts.json {
         let str = serde_json::to_string(&values).unwrap();
         print!("{}", str);
     } else {
         let mut table = Table::new();
         let mut hdr = Row::empty();
-        for field in fields.iter() {
+        for field in display_fields.iter() {
             if show(opts, field) {
                 hdr.add_cell(Cell::new(field.title).style_spec("bc"));
             }
@@ -33,7 +34,7 @@ pub fn print(fields: &Vec<Field>, values: &Vec<Value>, opts: &fmt::Opts) {
         table.add_row(hdr);
         for entry in values.iter() {
             let mut row = Row::empty();
-            for field in fields.iter() {
+            for field in display_fields.iter() {
                 if show(opts, field) {
                     let field = (field.get)(entry);
                     row.add_cell(Cell::new(&field));
@@ -44,6 +45,24 @@ pub fn print(fields: &Vec<Field>, values: &Vec<Value>, opts: &fmt::Opts) {
         table.printstd();
     }
 }
+
+fn format_fields<'a>(fields: &'a Vec<Field<'a>>, opts: &fmt::Opts) -> Vec<&'a Field<'a>> {
+    if opts.format.is_empty() {
+        fields.iter().filter(|f| f.default).collect()
+    } else {
+        let mut result: Vec<&Field> = vec![];
+        for &n in opts.format.iter() {
+            match fields.iter().position(|f| f.short == n) {
+                None =>
+                    println!("Error: field {} doesn't exist!", n),
+                pos =>
+                    result.push(&fields[pos.unwrap()])
+            }
+        }
+        result
+    }
+}
+
 
 fn show(opts: &Opts, field: &Field) -> bool {
     match opts.format.iter().position(|&r| r == field.short) {
