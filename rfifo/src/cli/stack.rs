@@ -12,6 +12,43 @@ pub fn build() -> App<'static, 'static> {
                     .about("Reads stack"))
         .subcommand(SubCommand::with_name("vms")
                     .about("Lists vms in the stack"))
+    // TODO
+        .subcommand(SubCommand::with_name("start")
+                    .about("Starts a VM in the stack")
+                    .arg(Arg::with_name("uuid")
+                         .value_name("UUID")
+                         .help("UUID of the VM")
+                         .required(true)
+                         .index(1)))
+    // TODO
+        .subcommand(SubCommand::with_name("stop")
+                    .about("Stops a VM in the stack")
+                    .arg(Arg::with_name("uuid")
+                         .value_name("UUID")
+                         .help("UUID of the VM")
+                         .required(true)
+                         .index(1)))
+    // TODO
+        .subcommand(SubCommand::with_name("reboot")
+                    .about("Reboots a VM in the stack")
+                    .arg(Arg::with_name("uuid")
+                         .value_name("UUID")
+                         .help("UUID of the VM")
+                         .required(true)
+                         .index(1)))
+    // TODO
+        .subcommand(SubCommand::with_name("run")
+                    .about("Runs a command on another VM in the stack")
+                    .arg(Arg::with_name("uuid")
+                         .value_name("UUID")
+                         .help("UUID of the VM")
+                         .required(true)
+                         .index(1))
+                    .arg(Arg::with_name("command")
+                         .value_name("COMMAND")
+                         .help("Command to run")
+                         .required(true)
+                         .index(2)))
         .subcommand(SubCommand::with_name("set")
                     .about("Sets stack")
                     .arg(Arg::with_name("key")
@@ -41,7 +78,7 @@ pub fn build() -> App<'static, 'static> {
         )
 }
 
-pub fn run(matches: &ArgMatches, _opts: &fmt::Opts) {
+pub fn run(matches: &ArgMatches, opts: &fmt::Opts) {
     match matches.subcommand {
         None =>
             println!("help"),
@@ -55,7 +92,7 @@ pub fn run(matches: &ArgMatches, _opts: &fmt::Opts) {
                     set(&sub.matches)
                 },
                 "vms" => {
-                    vms(&sub.matches)
+                    vms(&sub.matches, opts)
                 },
                 other => {
                     println!("Sub command '{}' not implemented for stack.", other);
@@ -68,12 +105,21 @@ pub fn run(matches: &ArgMatches, _opts: &fmt::Opts) {
 
 fn get(_app: &ArgMatches) {
     let value = cmd::run_generic("stack-get".to_string());
-    print!("{}", serde_json::to_string(&value).unwrap());
+    fmt::print_value(&value);
 }
 
-fn vms(_app: &ArgMatches) {
-    let value = cmd::run_generic("stack-vms".to_string());
-    print!("{}", serde_json::to_string(&value).unwrap());
+fn vms(_app: &ArgMatches, opts: &fmt::Opts) {
+    let fields =  vec![
+        fmt::Field{
+            title: "UUID",
+            short: "uuid",
+            default: true,
+            get: Box::new(|x| { x.as_str().unwrap().to_string() })
+        }
+    ];
+
+    let value = cmd::run_generic("cluster-vms".to_string());
+    fmt::print(&fields, value.as_array().unwrap(), &opts);
 }
 
 fn set(matches: &ArgMatches) {
@@ -99,5 +145,5 @@ fn set(matches: &ArgMatches) {
     obj.insert("data", Value::Object(data));
     let str = serde_json::to_string(&obj).unwrap();
     let res = cmd::run_str(str);
-    println!("res = {:?}", res);
+    fmt::print_value(&res);
 }

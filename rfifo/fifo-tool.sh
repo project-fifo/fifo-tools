@@ -8,6 +8,9 @@ case $1 in
     '{"action":"backup-list"}')
         echo '{"ff7c4d16-2b8f-41a2-8faa-3ae301b27f81":{"comment":"test","files":{"7032de1c-e5c5-e7f5-8eb6-b7ee1eff2fde\/ff7c4d16-2b8f-41a2-8faa-3ae301b27f81":{"size":41943040}},"pending":true,"state":"uploading","timestamp":1484745596506474}}'
         ;;
+    '{"action":"cluster-vms"}')
+        echo '["ff7c4d16-2b8f-41a2-8faa-3ae301b27f81"]'
+        ;;
     *)
         echo $1
     ;;

@@ -41,7 +41,7 @@ pub fn build() -> App<'static, 'static> {
         )
 }
 
-pub fn run(matches: &ArgMatches, _opts: &fmt::Opts) {
+pub fn run(matches: &ArgMatches, opts: &fmt::Opts) {
     match matches.subcommand {
         None =>
             println!("help"),
@@ -55,7 +55,7 @@ pub fn run(matches: &ArgMatches, _opts: &fmt::Opts) {
                     set(&sub.matches)
                 },
                 "vms" => {
-                    vms(&sub.matches)
+                    vms(&sub.matches, opts)
                 },
                 other => {
                     println!("Sub command '{}' not implemented for cluster.", other);
@@ -68,12 +68,21 @@ pub fn run(matches: &ArgMatches, _opts: &fmt::Opts) {
 
 fn get(_app: &ArgMatches) {
     let value = cmd::run_generic("cluster-get".to_string());
-    print!("{}", serde_json::to_string(&value).unwrap());
+    fmt::print_value(&value);
 }
 
-fn vms(_app: &ArgMatches) {
+fn vms(_app: &ArgMatches, opts: &fmt::Opts) {
+    let fields =  vec![
+        fmt::Field{
+            title: "UUID",
+            short: "uuid",
+            default: true,
+            get: Box::new(|x| { x.as_str().unwrap().to_string() })
+        }
+    ];
+
     let value = cmd::run_generic("cluster-vms".to_string());
-    print!("{}", serde_json::to_string(&value).unwrap());
+    fmt::print(&fields, value.as_array().unwrap(), &opts);
 }
 
 fn set(matches: &ArgMatches) {
@@ -99,5 +108,5 @@ fn set(matches: &ArgMatches) {
     obj.insert("data", Value::Object(data));
     let str = serde_json::to_string(&obj).unwrap();
     let res = cmd::run_str(str);
-    println!("res = {:?}", res);
+    fmt::print_value(&res);
 }

@@ -18,11 +18,20 @@ pub struct Opts<'a> {
     pub format: Vec<&'a str>
 }
 
+
+pub fn print_value(values: &Value) {
+    let str = serde_json::to_string(&values).unwrap();
+    print!("{}\n", str);
+ }
+
+pub fn print_values(values: &Vec<Value>) {
+    let str = serde_json::to_string(&values).unwrap();
+    print!("{}\n", str);
+}
 pub fn print(fields: &Vec<Field>, values: &Vec<Value>, opts: &fmt::Opts) {
     let display_fields = format_fields(fields, opts);
     if opts.json {
-        let str = serde_json::to_string(&values).unwrap();
-        print!("{}", str);
+        print_values(values)
     } else {
         let mut table = Table::new();
         let mut hdr = Row::empty();

@@ -16,6 +16,9 @@ pub fn build() -> App<'static, 'static> {
                          .help("Fields to be shown")))
         .subcommand(SubCommand::with_name("create")
                     .about("Creates a backup")
+                    // TODO
+                    // --delete
+                    // --parent
                     .arg(Arg::with_name("comment")
                          .value_name("COMMENT")
                          .required(true)

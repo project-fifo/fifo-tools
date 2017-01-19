@@ -7,6 +7,7 @@ pub mod backups;
 pub mod metadata;
 pub mod cluster;
 pub mod stack;
+pub mod zfs;
 
 pub fn build() -> App<'static, 'static> {
     App::new("fifo")
@@ -21,6 +22,7 @@ pub fn build() -> App<'static, 'static> {
         .subcommand(metadata::build())
         .subcommand(cluster::build())
         .subcommand(stack::build())
+        .subcommand(zfs::build())
 }
 
 pub fn run(cmd: &SubCommand, opts: &fmt::Opts) {
@@ -40,6 +42,9 @@ pub fn run(cmd: &SubCommand, opts: &fmt::Opts) {
         },
         "stack" => {
             stack::run(&cmd.matches, opts)
+        },
+        "zfs" => {
+            zfs::run(&cmd.matches, opts)
         },
         other => {
             println!("Sub command '{}' not implemented.", other);

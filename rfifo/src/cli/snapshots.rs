@@ -17,8 +17,18 @@ pub fn build() -> App<'static, 'static> {
                     .about("Creates a snapshot")
                     .arg(Arg::with_name("comment")
                          .value_name("COMMENT")
+                         .help("Comment for the snapshot")
                          .required(true)
                          .index(1)))
+    // TODO
+        .subcommand(SubCommand::with_name("get")
+                    .about("Reads one snapshot")
+                    .arg(Arg::with_name("uuid")
+                         .value_name("UUID")
+                         .help("UUID of the snapshot")
+                         .required(true)
+                         .index(1)))
+
 }
 
 pub fn run(matches: &ArgMatches, opts: &fmt::Opts) {

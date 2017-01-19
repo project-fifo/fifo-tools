@@ -89,5 +89,5 @@ fn set(matches: &ArgMatches) {
     obj.insert("data", Value::Object(data));
     let str = serde_json::to_string(&obj).unwrap();
     let res = cmd::run_str(str);
-    println!("res = {:?}", res);
+    fmt::print_value(&res);
 }
