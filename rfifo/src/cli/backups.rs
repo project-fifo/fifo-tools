@@ -1,4 +1,6 @@
+use std::process;
 use clap::{App, Arg, SubCommand, ArgMatches};
+use serde_json;
 use serde_json::Value;
 use cmd;
 use fmt;
@@ -149,5 +151,5 @@ fn create(matches: &ArgMatches) {
         comment: comment
     };
     let res = cmd::run(req);
-    println!("create: {:?}", res)
+    print!("{}", serde_json::to_string(&res).unwrap());
 }

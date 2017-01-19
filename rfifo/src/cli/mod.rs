@@ -1,10 +1,12 @@
+use std::process;
+use clap::{App, Arg, SubCommand};
+use fmt;
+
 pub mod snapshots;
 pub mod backups;
 pub mod metadata;
 pub mod cluster;
-
-use clap::{App, Arg, SubCommand};
-use fmt;
+pub mod stack;
 
 pub fn build() -> App<'static, 'static> {
     App::new("fifo")
@@ -18,6 +20,7 @@ pub fn build() -> App<'static, 'static> {
         .subcommand(backups::build())
         .subcommand(metadata::build())
         .subcommand(cluster::build())
+        .subcommand(stack::build())
 }
 
 pub fn run(cmd: &SubCommand, opts: &fmt::Opts) {
@@ -34,6 +37,9 @@ pub fn run(cmd: &SubCommand, opts: &fmt::Opts) {
         },
         "cluster" => {
             cluster::run(&cmd.matches, opts)
+        },
+        "stack" => {
+            stack::run(&cmd.matches, opts)
         },
         other => {
             println!("Sub command '{}' not implemented.", other);
