@@ -1,11 +1,11 @@
+#[cfg(not(target_os = "solaris"))]
+use std::process::Command;
 use serde_json;
 use serde_json::Value;
 use rustc_serialize::json;
 use rustc_serialize::Encodable;
 
-#[cfg(not(target_os = "solaris"))]
-use std::process::Command;
-#[cfg(not(target_os = "solaris"))]
+#[cfg(target_os = "solaris")]
 use std::process;
 #[cfg(target_os = "solaris")]
 use libc;
