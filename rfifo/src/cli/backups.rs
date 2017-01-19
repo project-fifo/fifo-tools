@@ -40,7 +40,7 @@ pub fn run(matches: &ArgMatches, opts: &fmt::Opts) {
     }
 }
 
-fn list(_app: &ArgMatches, opts: &fmt::Opts) {
+fn list(matches: &ArgMatches, opts: &fmt::Opts) {
     let fields =  vec![
         fmt::Field{
             title: "UUID",
@@ -121,10 +121,18 @@ fn list(_app: &ArgMatches, opts: &fmt::Opts) {
         element.insert("uuid".to_string(), Value::String(uuid.to_string()));
         vec.push(Value::Object(element));
     }
-    //let opts = fmt::Opts{json: true, fields: vec![]};
-    fmt::print(&fields, &vec, &opts);
+    if matches.is_present("format") {
+        let fmt_str: String = value_t!(matches, "format", String).unwrap();
+        let format: Vec<&str> = fmt_str.split(',').collect();
+        let opts_w_fmt = fmt::Opts{
+            json: opts.json,
+            format: format
+        };
+        fmt::print(&fields, &vec, &opts_w_fmt);
+    } else {
+        fmt::print(&fields, &vec, &opts);
+    }
 }
-
 
 #[derive(RustcEncodable)]
 struct BackupCreateReq {

@@ -11,7 +11,7 @@ mod fmt;
 
 fn main() {
     let matches = cli::build().get_matches();
-    let opts = fmt::Opts{json: matches.is_present("json"), fields: vec![]};
+    let opts = fmt::Opts{json: matches.is_present("json"), format: vec![]};
     //    println!("matches = {:?}", matches);
     match matches.subcommand {
         None =>

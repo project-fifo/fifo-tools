@@ -28,7 +28,7 @@ pub fn run(matches: &ArgMatches, opts: &fmt::Opts) {
             let name = sub.name.as_ref();
             match name {
                 "list" => {
-                    list(&sub.matches)
+                    list(&sub.matches, opts)
                 },
                 "create" => {
                     create(&sub.matches)
@@ -40,7 +40,7 @@ pub fn run(matches: &ArgMatches, opts: &fmt::Opts) {
     }
 }
 
-fn list(_app: &ArgMatches) {
+fn list(_app: &ArgMatches, opts: &fmt::Opts) {
     let fields =  vec![
         fmt::Field{
             title: "UUID",
@@ -85,7 +85,6 @@ fn list(_app: &ArgMatches) {
         element.insert("uuid".to_string(), Value::String(uuid.to_string()));
         vec.push(Value::Object(element));
     }
-    let opts = fmt::Opts{json: false, fields: vec![]};
     fmt::print(&fields, &vec, &opts);
 }
 
