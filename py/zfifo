@@ -103,7 +103,7 @@ def invoke(payload):
     res = subprocess.check_output([UTIL, j])
     if debug:
         print('> ', res)
-    return json.loads(res)
+    return json.loads(res.decode('utf-8'))
 
 # Shows the data when list was selected.
 def show_list(args):

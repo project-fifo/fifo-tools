@@ -1,4 +1,4 @@
-TARGET_DIR ?=/opt/local/$(COMPONENT)
+TARGET_DIR ?=/opt/local
 FILE ?=$(COMPONENT)-$(VERSION)$(SUFFIX)
 BLOCK_SIZE ?=65536
 STAGE_DIR ?=deploy
@@ -9,9 +9,9 @@ PKG_HOMEPAGE ?=https://project-fifo.net
 .PHONY: package_list build_info clean-pkg
 
 package_list:
-	-rm packlist
+	-rm packlist || true
 	for dep in $(DEPS); do echo "@pkgdep $$dep" >> packlist; done
-	(cd deploy; find * -type f | sort) >> packlist
+	(cd $(STAGE_DIR); find * -type f | sort) >> packlist
 
 build_info:
 	pkg_info -X pkg_install | egrep '^(MACHINE_ARCH|OPSYS|OS_VERSION|PKGTOOLS_VERSION)' >build-info
@@ -43,7 +43,7 @@ endif
 	split -b $(BLOCK_SIZE) tmp/$(FILE).tgz tmp/split
 	echo "pkgsrc signature\n\nversion: 1\npkgname: $(FILE)" > +PKG_HASH
 	echo "algorithm: SHA512\nblock size: $(BLOCK_SIZE)" >> +PKG_HASH
-	echo "file size: $(shell ls -l tmp/$(FILE).tgz | cut -d' ' -f 5)\n" >> +PKG_HASH
+	echo "file size: $(shell stat -c%s tmp/$(FILE).tgz)\n" >> +PKG_HASH
 	for file in tmp/split*; do digest -a sha512 $$file >> +PKG_HASH; done
 	echo "end pkgsrc signature" >> +PKG_HASH
 
