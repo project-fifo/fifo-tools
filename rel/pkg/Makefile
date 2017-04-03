@@ -22,4 +22,4 @@ prepare:
 	sed -e 's/{{VERSION}}/$(VERSION)/' ../../doc/zfifo.1 > $(STAGE_DIR)/man/man1/zfifo.1
 	cp -r ../../target/release/* $(STAGE_DIR)/fifo-tools/
 	chmod +x $(STAGE_DIR)/fifo-tools/fifo
-	ln -sf $(STAGE_DIR)/fifo-tools/fifo $(STAGE_DIR)/sbin/zfifo 
+	ln -sfr $(STAGE_DIR)/fifo-tools/fifo $(STAGE_DIR)/sbin/zfifo 
