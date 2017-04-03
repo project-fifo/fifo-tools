@@ -1,4 +1,5 @@
-pkg/build-info
-pkg/fifo-tools-0.6.1.tgz
-pkg/packlist
-pkg/staging
+rel/pkg/build-info
+rel/pkg/*.tgz
+rel/pkg/packlist
+rel/pkg/staging
+target

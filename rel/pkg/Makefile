@@ -3,7 +3,7 @@ include ../../project.mk
 COMPONENT_INTERNAL=$(PROJECT)
 COMPONENT=$(COMPONENT_INTERNAL)
 TARGET_DIR=/opt/local
-DEPS="python33"
+DEPS=""
 
 include pkg.mk
 
@@ -13,12 +13,13 @@ package: prepare $(FILE).tgz
 
 clean: clean-pkg
 	-rm *.tgz
+	-rm $(STAGE_DIR)
 
 prepare:
-	mkdir -p $(STAGE_DIR)/lib/fifo-tools
 	mkdir -p $(STAGE_DIR)/sbin
+	mkdir -p $(STAGE_DIR)/fifo-tools
 	mkdir -p $(STAGE_DIR)/man/man1
-	sed -e 's/{{VERSION}}/$(VERSION)/' ../../py/zfifo > $(STAGE_DIR)/sbin/zfifo
 	sed -e 's/{{VERSION}}/$(VERSION)/' ../../doc/zfifo.1 > $(STAGE_DIR)/man/man1/zfifo.1
-	chmod +x $(STAGE_DIR)/sbin/zfifo
-	cp -r ../../out/fifo $(STAGE_DIR)/lib/fifo-tools/
+	cp -r ../../target/release/* $(STAGE_DIR)/fifo-tools/
+	chmod +x $(STAGE_DIR)/fifo-tools/fifo
+	ln -sf $(STAGE_DIR)/fifo-tools/fifo $(STAGE_DIR)/sbin/zfifo 
