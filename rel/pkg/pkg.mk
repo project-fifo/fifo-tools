@@ -9,9 +9,9 @@ PKG_HOMEPAGE ?=https://project-fifo.net
 .PHONY: package_list build_info clean-pkg
 
 package_list:
-	-rm packlist || true
-	for dep in $(DEPS); do echo "@pkgdep $$dep" >> packlist; done
+	-rm packlist
 	(cd $(STAGE_DIR); find * -type f | sort) >> packlist
+	(cd $(STAGE_DIR); find * -type l | sort) >> packlist
 
 build_info:
 	pkg_info -X pkg_install | egrep '^(MACHINE_ARCH|OPSYS|OS_VERSION|PKGTOOLS_VERSION)' >build-info

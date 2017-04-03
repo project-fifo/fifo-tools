@@ -1,11 +1,17 @@
-out/fifo: src/fifo.c
-	gcc src/fifo.c -o out/fifo
+.PHONY: rel
+rel: 
+	cargo build --release
 
-package: out/fifo
+package: rel
 	make -C rel/pkg package
+	rm -rf target/release/build
 
 man:
 	nroff -man doc/zfifo.1 | less
 
 test deps version_header:
 	true
+
+clean:
+	make -C rel/pkg clean
+	-rm -rf target 
