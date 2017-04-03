@@ -63,7 +63,7 @@ pub fn run(matches: &ArgMatches, _opts: &fmt::Opts) {
 
 fn get(_app: &ArgMatches) {
     let value = cmd::run_generic("metadata-get".to_string());
-    print!("{}", serde_json::to_string(&value).unwrap());
+    print!("{}\n", serde_json::to_string(&value).unwrap());
 }
 
 fn set(matches: &ArgMatches) {
