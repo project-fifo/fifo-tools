@@ -8,6 +8,9 @@ pub mod metadata;
 pub mod cluster;
 pub mod stack;
 pub mod zfs;
+use std::io;
+use std::io::Write;
+
 
 pub fn build() -> App<'static, 'static> {
     App::new("fifo")
@@ -47,7 +50,7 @@ pub fn run(cmd: &SubCommand, opts: &fmt::Opts) {
             zfs::run(&cmd.matches, opts)
         },
         other => {
-            println!("Sub command '{}' not implemented.", other);
+            writeln!(io::stderr(), "Sub command '{}' not implemented.", other).unwrap();
             process::exit(1);
         }
 

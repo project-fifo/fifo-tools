@@ -4,6 +4,8 @@ use serde_json;
 use serde_json::Value;
 use cmd;
 use fmt;
+use std::io;
+use std::io::Write;
 
 pub fn build() -> App<'static, 'static> {
     SubCommand::with_name("backups")
@@ -39,7 +41,7 @@ pub fn run(matches: &ArgMatches, opts: &fmt::Opts) {
                     create(&sub.matches)
                 },
                 other => {
-                    println!("Sub command '{}' not implemented for backups.", other);
+                    writeln!(io::stderr(), "Sub command '{}' not implemented for backups.", other).unwrap();
                     process::exit(1);
                 }
             }

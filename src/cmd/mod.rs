@@ -1,3 +1,6 @@
+use std::io;
+use std::io::Write;
+
 #[cfg(not(target_os = "solaris"))]
 use std::process::Command;
 use serde_json;
@@ -74,14 +77,14 @@ pub fn run_str(str: String) -> Value {
 
         let fd = libc::open(door.as_ptr(), libc::O_RDWR);
         if fd < 0 {
-            println!("open failed with: {}", fd);
+            writeln!(io::stderr(), "open failed with: {}", fd).unwrap();
             process::exit(1);
         }
         //try!(
         //check_err!(
         let res = door::door_call(fd, door_args);
         if res < 0 {
-            println!("door_Call failed with: {}", res);
+            writeln!(io::stderr(), "door_Call failed with: {}", res).unwrap();
             process::exit(1);
         }
         libc::close(fd);
@@ -95,7 +98,7 @@ pub fn run_str(str: String) -> Value {
         },
         (_, rrest) => {
             let rstr = String::from_utf8_lossy(rrest);
-            println!("Call error: {}", rstr);
+            writeln!(io::stderr(), "Call error: {}", rstr).unwrap();
             process::exit(1);
         }
     };

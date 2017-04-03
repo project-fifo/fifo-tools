@@ -3,6 +3,8 @@ use cmd;
 use serde_json;
 use serde_json::Value;
 use fmt;
+use std::io;
+use std::io::Write;
 use std::process;
 
 pub fn build() -> App<'static, 'static> {
@@ -95,7 +97,7 @@ pub fn run(matches: &ArgMatches, opts: &fmt::Opts) {
                     vms(&sub.matches, opts)
                 },
                 other => {
-                    println!("Sub command '{}' not implemented for stack.", other);
+                    writeln!(io::stderr(), "Sub command '{}' not implemented for stack.", other).unwrap();
                     process::exit(1);
                 }
             }

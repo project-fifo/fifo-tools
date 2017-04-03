@@ -4,6 +4,9 @@ use cmd;
 use serde_json;
 use serde_json::Value;
 use fmt;
+use std::io;
+use std::io::Write;
+
 
 pub fn build() -> App<'static, 'static> {
     SubCommand::with_name("metadata")
@@ -53,7 +56,7 @@ pub fn run(matches: &ArgMatches, _opts: &fmt::Opts) {
                     set(&sub.matches)
                 },
                 other => {
-                    println!("Sub command '{}' not implemented for metadata.", other);
+                    writeln!(io::stderr(), "Sub command '{}' not implemented for metadata.", other).unwrap();
                     process::exit(1);
                 }
             }

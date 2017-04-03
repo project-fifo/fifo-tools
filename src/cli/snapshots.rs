@@ -3,6 +3,8 @@ use clap::{App, Arg, SubCommand, ArgMatches};
 use serde_json::Value;
 use cmd;
 use fmt;
+use std::io;
+use std::io::Write;
 
 pub fn build() -> App<'static, 'static> {
     SubCommand::with_name("snapshots")
@@ -45,7 +47,7 @@ pub fn run(matches: &ArgMatches, opts: &fmt::Opts) {
                     create(&sub.matches)
                 },
                 other => {
-                    println!("Sub command '{}' not implemented for snapshots.", other);
+                    writeln!(io::stderr(), "Sub command '{}' not implemented for snapshots.", other).unwrap();
                     process::exit(1);
                 }
 
