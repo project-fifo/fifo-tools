@@ -4,6 +4,8 @@ use serde_json;
 use serde_json::Value;
 use fmt;
 use std::process;
+use std::io;
+use std::io::Write;
 
 pub fn build() -> App<'static, 'static> {
     SubCommand::with_name("cluster")
@@ -58,7 +60,7 @@ pub fn run(matches: &ArgMatches, opts: &fmt::Opts) {
                     vms(&sub.matches, opts)
                 },
                 other => {
-                    println!("Sub command '{}' not implemented for cluster.", other);
+                    writeln!(io::stderr(), "Sub command '{}' not implemented for cluster.", other).unwrap();
                     process::exit(1);
                 }
             }

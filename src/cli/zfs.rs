@@ -4,6 +4,9 @@ use clap::{App, ArgMatches, SubCommand};
 //use serde_json::Value;
 //use cmd;
 use fmt;
+use std::io;
+use std::io::Write;
+
 
 pub fn build() -> App<'static, 'static> {
     SubCommand::with_name("zfs")
@@ -23,7 +26,7 @@ pub fn run(matches: &ArgMatches, opts: &fmt::Opts) {
                 "list" =>
                     list(matches, opts),
                 other => {
-                    println!("Sub command '{}' not implemented for zfs.", other);
+                    writeln!(io::stderr(), "Sub command '{}' not implemented for zfs.", other).unwrap();
                     process::exit(1);
                 }
             }
