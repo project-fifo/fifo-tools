@@ -41,3 +41,14 @@ smartos:
     refs:
       - master
       - dev
+
+smartos_test:
+  stage: test
+  script:
+    - cargo test
+  tags:
+    - smartos
+  except:
+    - pipelines
+    - master
+    - dev
