@@ -4,6 +4,10 @@ use serde_json;
 use serde_json::Value;
 use rustc_serialize::json;
 use rustc_serialize::Encodable;
+#[cfg(target_os = "solaris")]
+use std::io;
+#[cfg(target_os = "solaris")]
+use std::io::Write;
 
 #[cfg(target_os = "solaris")]
 use std::process;
