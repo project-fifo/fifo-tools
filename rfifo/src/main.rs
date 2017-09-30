@@ -2,7 +2,6 @@ extern crate rustc_serialize;
 extern crate serde_json;
 #[macro_use]
 extern crate clap;
-#[macro_use]
 extern crate prettytable;
 #[cfg(target_os = "solaris")]
 extern crate libc;
