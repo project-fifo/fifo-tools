@@ -1,6 +1,3 @@
-use std::io;
-use std::io::Write;
-
 #[cfg(not(target_os = "solaris"))]
 use std::process::Command;
 use serde_json;

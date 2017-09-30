@@ -1,10 +1,10 @@
 .PHONY: rel
-rel: 
-	cargo build --release
-
-package: rel
+dist: target/release/fifo
 	make -C rel/pkg package
 	rm -rf target/release/build
+
+target/release/fifo: 
+	cargo build --release
 
 man:
 	nroff -man doc/zfifo.1 | less
