@@ -1,34 +1,30 @@
 use std::process;
 use clap::{App, Arg, SubCommand, ArgMatches};
+use serde_json;
 use serde_json::Value;
 use cmd;
 use fmt;
+use std::io;
+use std::io::Write;
 
 pub fn build() -> App<'static, 'static> {
-    SubCommand::with_name("snapshots")
-        .about("Snapshot related commands")
+    SubCommand::with_name("backups")
+        .about("Backup related commands")
         .subcommand(SubCommand::with_name("list")
-                    .about("Lists all snapshots")
+                    .about("Lists all backups")
                     .arg(Arg::with_name("format")
                          .long("fmt")
                          .value_name("FMT")
                          .help("Fields to be shown")))
         .subcommand(SubCommand::with_name("create")
-                    .about("Creates a snapshot")
+                    .about("Creates a backup")
+                    // TODO
+                    // --delete
+                    // --parent
                     .arg(Arg::with_name("comment")
                          .value_name("COMMENT")
-                         .help("Comment for the snapshot")
                          .required(true)
                          .index(1)))
-    // TODO
-        .subcommand(SubCommand::with_name("get")
-                    .about("Reads one snapshot")
-                    .arg(Arg::with_name("uuid")
-                         .value_name("UUID")
-                         .help("UUID of the snapshot")
-                         .required(true)
-                         .index(1)))
-
 }
 
 pub fn run(matches: &ArgMatches, opts: &fmt::Opts) {
@@ -45,16 +41,15 @@ pub fn run(matches: &ArgMatches, opts: &fmt::Opts) {
                     create(&sub.matches)
                 },
                 other => {
-                    println!("Sub command '{}' not implemented for snapshots.", other);
+                    writeln!(io::stderr(), "Sub command '{}' not implemented for backups.", other).unwrap();
                     process::exit(1);
                 }
-
             }
         }
     }
 }
 
-fn list(_app: &ArgMatches, opts: &fmt::Opts) {
+fn list(matches: &ArgMatches, opts: &fmt::Opts) {
     let fields =  vec![
         fmt::Field{
             title: "UUID",
@@ -63,11 +58,41 @@ fn list(_app: &ArgMatches, opts: &fmt::Opts) {
             get: Box::new(|x| { x.lookup("uuid").unwrap().as_str().unwrap().to_string() })
         },
         fmt::Field{
+            title: "Parent",
+            short: "parent",
+            default: true,
+            get: Box::new(|x| {
+                match x.lookup("parent") {
+                    None => "-".to_string(),
+                    value => {
+                        value
+                            .unwrap()
+                            .as_str()
+                            .unwrap()
+                            .to_string()
+                    }
+                }})
+        },
+        fmt::Field{
+            title: "Local",
+            short: "local",
+            default: false,
+            get: Box::new(|x| {
+                match x.lookup("local") {
+                    None => "-".to_string(),
+                    value => {
+                        value
+                            .unwrap()
+                            .as_bool()
+                            .unwrap()
+                            .to_string()
+                    }
+                }})
+        },        fmt::Field{
             title: "Timestamp",
             short: "timestamp",
             default: true,
             get: Box::new(|x| { x.lookup("timestamp").unwrap().as_i64().unwrap().to_string() })
-
         },
         fmt::Field{
             title: "Size",
@@ -81,8 +106,14 @@ fn list(_app: &ArgMatches, opts: &fmt::Opts) {
                         .as_i64()
                         .unwrap()
                         .to_string()
-                }})
-
+                }
+            })
+        },
+        fmt::Field{
+            title: "State",
+            short: "state",
+            default: true,
+            get: Box::new(|x| { x.lookup("state").unwrap().as_str().unwrap().to_string() })
         },
         fmt::Field{
             title: "Comment",
@@ -91,7 +122,7 @@ fn list(_app: &ArgMatches, opts: &fmt::Opts) {
             get: Box::new(|x| { x.lookup("comment").unwrap().as_str().unwrap().to_string() })
         }
     ];
-    let value = cmd::run_generic("snapshot-list".to_string());
+    let value = cmd::run_generic("backup-list".to_string());
     let obj = value.as_object().unwrap();
     let mut vec = Vec::new();
     for (uuid, data) in obj {
@@ -99,23 +130,31 @@ fn list(_app: &ArgMatches, opts: &fmt::Opts) {
         element.insert("uuid".to_string(), Value::String(uuid.to_string()));
         vec.push(Value::Object(element));
     }
-    fmt::print(&fields, &vec, &opts);
+    if matches.is_present("format") {
+        let fmt_str: String = value_t!(matches, "format", String).unwrap();
+        let format: Vec<&str> = fmt_str.split(',').collect();
+        let opts_w_fmt = fmt::Opts{
+            json: opts.json,
+            format: format
+        };
+        fmt::print(&fields, &vec, &opts_w_fmt);
+    } else {
+        fmt::print(&fields, &vec, &opts);
+    }
 }
 
-
 #[derive(RustcEncodable)]
-struct SnapshotCreateReq {
+struct BackupCreateReq {
     action: String,
     comment: String
 }
 
 fn create(matches: &ArgMatches) {
     let comment = value_t!(matches, "comment", String).unwrap();
-    let req = SnapshotCreateReq{
-        action:  "snapshot-create".to_string(),
+    let req = BackupCreateReq{
+        action:  "backup-create".to_string(),
         comment: comment
     };
     let res = cmd::run(req);
-
-    println!("create: {:?}", res)
+    print!("{}", serde_json::to_string(&res).unwrap());
 }

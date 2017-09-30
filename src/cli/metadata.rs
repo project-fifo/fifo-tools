@@ -1,56 +1,20 @@
+use std::process;
 use clap::{App, Arg, ArgMatches, SubCommand};
 use cmd;
 use serde_json;
 use serde_json::Value;
 use fmt;
-use std::process;
+use std::io;
+use std::io::Write;
+
 
 pub fn build() -> App<'static, 'static> {
-    SubCommand::with_name("stack")
+    SubCommand::with_name("metadata")
         .about("Snapshot related commands")
         .subcommand(SubCommand::with_name("get")
-                    .about("Reads stack"))
-        .subcommand(SubCommand::with_name("vms")
-                    .about("Lists vms in the stack"))
-    // TODO
-        .subcommand(SubCommand::with_name("start")
-                    .about("Starts a VM in the stack")
-                    .arg(Arg::with_name("uuid")
-                         .value_name("UUID")
-                         .help("UUID of the VM")
-                         .required(true)
-                         .index(1)))
-    // TODO
-        .subcommand(SubCommand::with_name("stop")
-                    .about("Stops a VM in the stack")
-                    .arg(Arg::with_name("uuid")
-                         .value_name("UUID")
-                         .help("UUID of the VM")
-                         .required(true)
-                         .index(1)))
-    // TODO
-        .subcommand(SubCommand::with_name("reboot")
-                    .about("Reboots a VM in the stack")
-                    .arg(Arg::with_name("uuid")
-                         .value_name("UUID")
-                         .help("UUID of the VM")
-                         .required(true)
-                         .index(1)))
-    // TODO
-        .subcommand(SubCommand::with_name("run")
-                    .about("Runs a command on another VM in the stack")
-                    .arg(Arg::with_name("uuid")
-                         .value_name("UUID")
-                         .help("UUID of the VM")
-                         .required(true)
-                         .index(1))
-                    .arg(Arg::with_name("command")
-                         .value_name("COMMAND")
-                         .help("Command to run")
-                         .required(true)
-                         .index(2)))
+                    .about("Reads metadata"))
         .subcommand(SubCommand::with_name("set")
-                    .about("Sets stack")
+                    .about("Sets metadata")
                     .arg(Arg::with_name("key")
                          .value_name("KEY")
                          .required(true)
@@ -78,7 +42,7 @@ pub fn build() -> App<'static, 'static> {
         )
 }
 
-pub fn run(matches: &ArgMatches, opts: &fmt::Opts) {
+pub fn run(matches: &ArgMatches, _opts: &fmt::Opts) {
     match matches.subcommand {
         None =>
             println!("help"),
@@ -91,11 +55,8 @@ pub fn run(matches: &ArgMatches, opts: &fmt::Opts) {
                 "set" => {
                     set(&sub.matches)
                 },
-                "vms" => {
-                    vms(&sub.matches, opts)
-                },
                 other => {
-                    println!("Sub command '{}' not implemented for stack.", other);
+                    writeln!(io::stderr(), "Sub command '{}' not implemented for metadata.", other).unwrap();
                     process::exit(1);
                 }
             }
@@ -104,29 +65,15 @@ pub fn run(matches: &ArgMatches, opts: &fmt::Opts) {
 }
 
 fn get(_app: &ArgMatches) {
-    let value = cmd::run_generic("stack-get".to_string());
-    fmt::print_value(&value);
-}
-
-fn vms(_app: &ArgMatches, opts: &fmt::Opts) {
-    let fields =  vec![
-        fmt::Field{
-            title: "UUID",
-            short: "uuid",
-            default: true,
-            get: Box::new(|x| { x.as_str().unwrap().to_string() })
-        }
-    ];
-
-    let value = cmd::run_generic("cluster-vms".to_string());
-    fmt::print(&fields, value.as_array().unwrap(), &opts);
+    let value = cmd::run_generic("metadata-get".to_string());
+    print!("{}\n", serde_json::to_string(&value).unwrap());
 }
 
 fn set(matches: &ArgMatches) {
     let key = value_t!(matches, "key", String).unwrap();
     let mut obj = ::std::collections::HashMap::new();
     let mut data = ::std::collections::BTreeMap::new();
-    obj.insert("action", Value::String("stack-set".to_string()));
+    obj.insert("action", Value::String("metadata-set".to_string()));
 
     if matches.is_present("integer") {
         let value = value_t_or_exit!(matches, "value", i64);

@@ -1,17 +1,21 @@
-use std::process;
 use clap::{App, Arg, ArgMatches, SubCommand};
 use cmd;
 use serde_json;
 use serde_json::Value;
 use fmt;
+use std::process;
+use std::io;
+use std::io::Write;
 
 pub fn build() -> App<'static, 'static> {
-    SubCommand::with_name("metadata")
+    SubCommand::with_name("cluster")
         .about("Snapshot related commands")
         .subcommand(SubCommand::with_name("get")
-                    .about("Reads metadata"))
+                    .about("Reads cluster"))
+        .subcommand(SubCommand::with_name("vms")
+                    .about("Lists vms in the cluster"))
         .subcommand(SubCommand::with_name("set")
-                    .about("Sets metadata")
+                    .about("Sets cluster")
                     .arg(Arg::with_name("key")
                          .value_name("KEY")
                          .required(true)
@@ -39,7 +43,7 @@ pub fn build() -> App<'static, 'static> {
         )
 }
 
-pub fn run(matches: &ArgMatches, _opts: &fmt::Opts) {
+pub fn run(matches: &ArgMatches, opts: &fmt::Opts) {
     match matches.subcommand {
         None =>
             println!("help"),
@@ -52,8 +56,11 @@ pub fn run(matches: &ArgMatches, _opts: &fmt::Opts) {
                 "set" => {
                     set(&sub.matches)
                 },
+                "vms" => {
+                    vms(&sub.matches, opts)
+                },
                 other => {
-                    println!("Sub command '{}' not implemented for metadata.", other);
+                    writeln!(io::stderr(), "Sub command '{}' not implemented for cluster.", other).unwrap();
                     process::exit(1);
                 }
             }
@@ -62,15 +69,29 @@ pub fn run(matches: &ArgMatches, _opts: &fmt::Opts) {
 }
 
 fn get(_app: &ArgMatches) {
-    let value = cmd::run_generic("metadata-get".to_string());
-    print!("{}", serde_json::to_string(&value).unwrap());
+    let value = cmd::run_generic("cluster-get".to_string());
+    fmt::print_value(&value);
+}
+
+fn vms(_app: &ArgMatches, opts: &fmt::Opts) {
+    let fields =  vec![
+        fmt::Field{
+            title: "UUID",
+            short: "uuid",
+            default: true,
+            get: Box::new(|x| { x.as_str().unwrap().to_string() })
+        }
+    ];
+
+    let value = cmd::run_generic("cluster-vms".to_string());
+    fmt::print(&fields, value.as_array().unwrap(), &opts);
 }
 
 fn set(matches: &ArgMatches) {
     let key = value_t!(matches, "key", String).unwrap();
     let mut obj = ::std::collections::HashMap::new();
     let mut data = ::std::collections::BTreeMap::new();
-    obj.insert("action", Value::String("metadata-set".to_string()));
+    obj.insert("action", Value::String("cluster-set".to_string()));
 
     if matches.is_present("integer") {
         let value = value_t_or_exit!(matches, "value", i64);
