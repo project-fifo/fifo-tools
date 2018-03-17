@@ -1,6 +1,6 @@
 [package]
 name = "fifo"
-version = "0.1.0"
+version = "0.10.0"
 authors = ["Heinz N. Gies <heinz@project-fifo.net>"]
 
 [dependencies]
